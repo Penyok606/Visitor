@@ -1,0 +1,93 @@
+Особливості шаблону
+Сукупна структура об'єктів елементу може визначатися за допомогою патерну Компонувальник (Composite).
+Для обходу може використовуватися Ітератор (Iterator).
+Шаблон Відвідувач демонструє класичний прийом відновлення інформації про втрачені типи, не вдаючись до понижуючого приведення типів (динамічне приведення).
+Використовує механізм багаторазової диспетчеризації.
+
+Взаємодія
+Клієнт, що використовує Відвідувача, має створити об'єкт Конкретного відвідувача та обійти потрібні елементи, відвідуючи кожен з них цим об'єктом.
+Коли елемент відвідується, він викликає операцію Відвідувача, що відповідає класу елементу. Елемент передає себе як аргумент в цю операцію щоб дозволити Відвідувачу доступ до його стану, якщо це необхідно.
+
+Переваги
+спрощується додавання нових операцій;
+об'єднання споріднених операції в класі Visitor;
+клас Visitor може запам’ятовувати в собі якийсь стан під час обходу контейнера.
+Недоліки
+важке додавання нових класів, оскільки потрібно оновлювати ієрархію відвідувачів.
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+struct Foo;
+struct Bar;
+struct Baz;
+
+// Абстракція відвідувача
+struct Visitor
+{
+	virtual void visit(Foo &ref) = 0;
+	virtual void visit(Bar &ref) = 0;
+	virtual void visit(Baz &ref) = 0;
+	virtual ~Visitor() = default;
+};
+// Абстракція елемента
+struct Element
+{
+	virtual void accept(Visitor &v) = 0;
+	virtual ~Element() = default;
+};
+// Конкретні елементи
+struct Foo : public Element
+{
+	void accept(Visitor &v) override
+	{
+		v.visit(*this);
+	}
+};
+struct Bar : public Element
+{
+	void accept(Visitor &v) override
+	{
+		v.visit(*this);
+	}
+};
+struct Baz : public Element
+{
+	void accept(Visitor &v) override
+	{
+		v.visit(*this);
+	}
+};
+// Конкретний відвідувач
+struct GetType : public Visitor
+{
+	string value;
+	void visit(Foo &ref) override
+	{
+		value = "Foo";
+	}
+	void visit(Bar &ref) override
+	{
+		value = "Bar";
+	}
+	void visit(Baz &ref) override
+	{
+		value = "Baz";
+	}
+};
+void main()
+{
+	Foo foo;
+	Bar bar;
+	Baz baz;
+	Element *elements[] = { &foo, &bar, &baz };
+
+	GetType visitor;
+	for (auto elem : elements)
+	{
+		elem->accept(visitor);
+		cout << visitor.value << endl;
+	}
+}
